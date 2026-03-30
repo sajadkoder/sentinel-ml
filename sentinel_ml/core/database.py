@@ -51,7 +51,7 @@ class Transaction(Base):
     model_version = Column(String(20))
     
     features = Column(JSONB)
-    metadata = Column(JSONB)
+    transaction_metadata = Column("metadata", JSONB)
     
     __table_args__ = (
         Index('idx_transactions_user_timestamp', 'user_id', 'timestamp'),

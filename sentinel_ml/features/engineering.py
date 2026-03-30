@@ -88,15 +88,15 @@ class FeatureEngineer:
         df = df.copy()
         df = df.sort_values(['user_id', 'timestamp'])
         
-        df['user_txn_count_1h'] = df.groupby('user_id').apply(
-            lambda g: g.set_index('timestamp')['transaction_id']
-            .rolling('1h').count()
-        ).values
-        
-        df['user_txn_count_24h'] = df.groupby('user_id').apply(
-            lambda g: g.set_index('timestamp')['transaction_id']
-            .rolling('24h').count()
-        ).values
+        txn_count_1h = pd.Series(index=df.index, dtype=float)
+        txn_count_24h = pd.Series(index=df.index, dtype=float)
+        for _, group in df.groupby('user_id', sort=False):
+            indexed = group.set_index('timestamp')['transaction_id']
+            txn_count_1h.loc[group.index] = indexed.rolling('1h').count().to_numpy()
+            txn_count_24h.loc[group.index] = indexed.rolling('24h').count().to_numpy()
+
+        df['user_txn_count_1h'] = txn_count_1h
+        df['user_txn_count_24h'] = txn_count_24h
         
         df['user_txn_count_7d'] = df.groupby('user_id').cumcount()
         
@@ -124,7 +124,7 @@ class FeatureEngineer:
         df['user_txn_count_24h'] = df['user_txn_count_24h'].fillna(0)
         df['user_txn_count_7d'] = df['user_txn_count_7d'].fillna(0)
         
-        return df
+        return df.sort_index()
     
     def compute_risk_scores(
         self,
@@ -166,7 +166,7 @@ class FeatureEngineer:
         
         df = df.drop(['prev_device_type', 'prev_location_country'], axis=1, errors='ignore')
         
-        return df
+        return df.sort_index()
     
     def encode_categorical(
         self,

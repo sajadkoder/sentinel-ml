@@ -4,7 +4,7 @@ FastAPI application for fraud detection inference
 import asyncio
 import time
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Any
 from contextlib import asynccontextmanager
 
@@ -150,6 +150,11 @@ class FraudDetectionService:
             return
         
         try:
+            if feature_engineer_path:
+                self.feature_engineer = FeatureEngineer.load(feature_engineer_path)
+            else:
+                self.feature_engineer = FeatureEngineer()
+
             if model_path:
                 self.model = FraudDetectionModel.load(model_path)
             else:
@@ -158,11 +163,12 @@ class FraudDetectionService:
                 self._fit_dummy_model()
             
             self.model_version = self.model.version
-            
-            if feature_engineer_path:
-                self.feature_engineer = FeatureEngineer.load(feature_engineer_path)
-            else:
-                self.feature_engineer = FeatureEngineer()
+
+            if not getattr(self.feature_engineer, "feature_names", None):
+                self.feature_engineer.feature_names = list(
+                    self.model.feature_names or self.feature_engineer.numerical_feature_names
+                )
+            self.feature_engineer.is_fitted = True
             
             self._initialized = True
             logger.info(
@@ -175,9 +181,9 @@ class FraudDetectionService:
     
     def _fit_dummy_model(self):
         """Fit model with dummy data for demo purposes"""
-        X = np.random.randn(1000, 20)
+        feature_names = list(self.feature_engineer.numerical_feature_names)
+        X = np.random.randn(1000, len(feature_names))
         y = np.random.randint(0, 2, 1000)
-        feature_names = [f"feature_{i}" for i in range(20)]
         self.model.train(X, y, feature_names)
     
     async def predict(
@@ -308,7 +314,7 @@ class FraudDetectionService:
             "model_version": self.model_version,
             "cache_status": cache_health.get("status", "unknown"),
             "database_status": "connected",
-            "timestamp": datetime.utcnow()
+            "timestamp": datetime.now(timezone.utc)
         }
     
     def get_model_info(self) -> Dict[str, Any]:
@@ -321,7 +327,7 @@ class FraudDetectionService:
             "model_version": self.model_version,
             "feature_count": len(self.feature_engineer.feature_names),
             "training_metrics": self.model.metrics.to_dict() if self.model.metrics else {},
-            "last_updated": datetime.utcnow()
+            "last_updated": datetime.now(timezone.utc)
         }
 
 

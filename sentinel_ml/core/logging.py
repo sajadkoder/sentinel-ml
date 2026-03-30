@@ -3,7 +3,7 @@ Logging configuration for SentinelML
 """
 import logging
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from pathlib import Path
 import json
@@ -17,7 +17,7 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
     
     def add_fields(self, log_record, record, message_dict):
         super().add_fields(log_record, record, message_dict)
-        log_record['timestamp'] = datetime.utcnow().isoformat()
+        log_record['timestamp'] = datetime.now(timezone.utc).isoformat()
         log_record['level'] = record.levelname
         log_record['logger'] = record.name
         log_record['environment'] = config.environment.value
@@ -53,6 +53,7 @@ def setup_logging(
     
     level = log_level or config.monitoring.log_level
     logger.setLevel(getattr(logging, level.upper()))
+    logger.propagate = False
     
     formatter = CustomJsonFormatter(
         '%(timestamp)s %(level)s %(name)s %(message)s'

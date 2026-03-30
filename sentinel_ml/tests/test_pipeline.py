@@ -109,14 +109,16 @@ class TestFeatureEngineer:
         fe = FeatureEngineer()
         fe.fit_transform(sample_data)
         
-        with tempfile.NamedTemporaryFile(suffix='.joblib', delete=False) as f:
-            fe.save(f.name)
-            loaded_fe = FeatureEngineer.load(f.name)
+        fd, path = tempfile.mkstemp(suffix='.joblib')
+        os.close(fd)
+        try:
+            fe.save(path)
+            loaded_fe = FeatureEngineer.load(path)
             
             assert loaded_fe.is_fitted
             assert loaded_fe.feature_names == fe.feature_names
-            
-            os.unlink(f.name)
+        finally:
+            os.unlink(path)
 
 
 class TestFraudDetectionModel:
@@ -171,9 +173,11 @@ class TestFraudDetectionModel:
         """Test saving and loading model"""
         model, X, y = trained_model
         
-        with tempfile.NamedTemporaryFile(suffix='.joblib', delete=False) as f:
-            model.save(f.name)
-            loaded_model = FraudDetectionModel.load(f.name)
+        fd, path = tempfile.mkstemp(suffix='.joblib')
+        os.close(fd)
+        try:
+            model.save(path)
+            loaded_model = FraudDetectionModel.load(path)
             
             assert loaded_model.is_fitted
             assert loaded_model.version == model.version
@@ -182,8 +186,8 @@ class TestFraudDetectionModel:
                 model.predict(X[:5]),
                 loaded_model.predict(X[:5])
             )
-            
-            os.unlink(f.name)
+        finally:
+            os.unlink(path)
     
     def test_cross_validation(self, sample_data):
         """Test cross-validation"""

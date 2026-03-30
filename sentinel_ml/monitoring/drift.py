@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from scipy import stats
 from collections import deque
 import asyncio
@@ -39,7 +39,7 @@ class DriftResult:
     
     def __post_init__(self):
         if self.timestamp is None:
-            self.timestamp = datetime.utcnow()
+            self.timestamp = datetime.now(timezone.utc)
     
     def to_dict(self) -> Dict:
         return {
@@ -199,7 +199,7 @@ class DataDriftDetector:
         
         recent_drifts = [
             d for d in self.drift_history
-            if d.timestamp > datetime.utcnow() - timedelta(days=7)
+            if d.timestamp > datetime.now(timezone.utc) - timedelta(days=7)
         ]
         
         features_affected = list(set(d.feature_name for d in recent_drifts))
@@ -410,7 +410,7 @@ class AlertingSystem:
                         'severity': rule['severity'],
                         'message': rule['message'],
                         'metrics': metrics,
-                        'timestamp': datetime.utcnow().isoformat()
+                        'timestamp': datetime.now(timezone.utc).isoformat()
                     }
                     alerts.append(alert)
                     self.alert_history.append(alert)
@@ -440,7 +440,7 @@ class AlertingSystem:
     
     def get_recent_alerts(self, hours: int = 24) -> List[Dict]:
         """Get alerts from last N hours"""
-        cutoff = datetime.utcnow() - timedelta(hours=hours)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
         return [
             a for a in self.alert_history
             if datetime.fromisoformat(a['timestamp']) > cutoff
@@ -464,7 +464,7 @@ class MonitoringDashboard:
         alerts = self.alerting.check_alerts(performance_metrics)
         
         return {
-            'timestamp': datetime.utcnow().isoformat(),
+            'timestamp': datetime.now(timezone.utc).isoformat(),
             'performance': performance_metrics,
             'drift': drift_summary,
             'alerts': alerts,

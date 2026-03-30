@@ -1,7 +1,7 @@
 """
 Dashboard API endpoints for monitoring
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, List
 
 from fastapi import APIRouter, HTTPException
@@ -46,7 +46,7 @@ async def get_system_health() -> Dict[str, Any]:
     metrics = dashboard.collect_metrics()
     return {
         "status": metrics.get("system_health", "unknown"),
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "components": {
             "model": "healthy" if metrics.get("performance") else "unknown",
             "drift_detection": "healthy",
