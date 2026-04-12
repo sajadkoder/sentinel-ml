@@ -1,6 +1,6 @@
 # SentinelML
 
-A production-ready real-time fraud detection system built with Python, FastAPI, and scikit-learn.
+A real-time fraud detection system built with Python, FastAPI, and scikit-learn.
 
 ![Python](https://img.shields.io/badge/Python-3.11+-blue?style=flat&logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-green?style=flat)
@@ -9,7 +9,7 @@ A production-ready real-time fraud detection system built with Python, FastAPI, 
 
 ## Overview
 
-SentinelML is a complete end-to-end fraud detection system that demonstrates how to build production-ready ML applications. It includes everything from data generation and feature engineering to model training, API serving, and monitoring.
+SentinelML is a complete end-to-end fraud detection system. It includes everything from data generation and feature engineering to model training, API serving, and monitoring.
 
 ## Key Features
 
