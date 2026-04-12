@@ -1,0 +1,59 @@
+[tool.poetry]
+name = "sentinel-ml"
+version = "1.0.0"
+description = "A real-time fraud detection system"
+authors = ["Your Name"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/sajadkoder/sentinel-ml"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+numpy = "^1.24"
+pandas = "^2.0"
+scipy = "^1.10"
+scikit-learn = "^1.3"
+joblib = "^1.3"
+fastapi = "^0.104"
+uvicorn = {extras = ["standard"], version = "^0.24"}
+pydantic = "^2.0"
+
+[tool.poetry.dependencies.sqlalchemy]
+version = "^2.0"
+extras = ["asyncio"]
+
+[tool.poetry.dependencies.asyncpg]
+version = "^0.29"
+
+[tool.poetry.dependencies.psycopg2-binary]
+version = "^2.9"
+
+[tool.poetry.dependencies.redis]
+version = "^5.0"
+
+[tool.poetry.dependencies.mlflow]
+version = "^2.9"
+
+[tool.poetry.dependencies.python-json-logger]
+version = "^2.0"
+
+[tool.poetry.dependencies.pyyaml]
+version = "^6.0"
+
+[tool.poetry.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "httpx",
+    "locust",
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["sentinel_ml/tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
